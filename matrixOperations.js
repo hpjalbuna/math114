@@ -3,8 +3,7 @@
 // 	-for matrixMultiplication, matrices must have valid dimension
 
 
-
-//dimension of the given matrix
+//get dimension of the given matrix
 //returns array [m,n]
 function getdim(matrix) {
     if (matrix instanceof Array) {
@@ -176,7 +175,7 @@ function transposeMatrix(matrixA){
 	return matrix
 }
 
-
+//TO-DO: Gaussian Elimination and Gauss-Jordan Elimination
 
 // function rowInterchange(rowA,rowB,matrix){
 
