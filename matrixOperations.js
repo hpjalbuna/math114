@@ -2,6 +2,7 @@
 // 	-inputs must be valid upon usage of each function
 // 	-for matrixMultiplication, matrices must have valid dimension
 
+var abs = Math.abs;
 
 //get dimension of the given matrix
 //returns array [m,n]
@@ -60,7 +61,9 @@ function gcdXY(x, y) {
 //returns the lowest term of the fraction in format [numerator,denominator]
 function toLowestTerm(numtr,dnmtr){
 	var gcd = gcdXY(numtr,dnmtr)
-	return [numtr/gcd,dnmtr/gcd]
+	var lt = [numtr/gcd,dnmtr/gcd]
+	lt = lt[1]<0? [-1*numtr/gcd,-1*dnmtr/gcd] : lt
+	return lt
 }
 
 //returns representation of the input matrix where value of each entry is in format [numerator,denominator]
@@ -175,73 +178,109 @@ function transposeMatrix(matrixA){
 	return matrix
 }
 
-//TO-DO: Gaussian Elimination and Gauss-Jordan Elimination
+function rowInterchange(mat,rowSrc,rowDst){
+	var temp = mat[rowDst]
+	mat[rowDst] = mat[rowSrc]
+	mat[rowSrc] = temp
 
-// function rowInterchange(rowA,rowB,matrix){
+	return mat
+
+}
+
+function createAugmentedMatrix(matrixA,b){
+	var b = vectorRep(b)
+	var i = 0
+	matrixA = matrixRep(matrixA)
+	if(b.length > 0){
+		matrixA.forEach(function(row){
+			row.push(b[i++])
+		})
+	}
+
+	return matrixA
+}
 
 
+function gaussianElimination(matrixA){
+	var solSet = Array()
+	// var tempMatrix = Array(dim[0]).fill(0).map(() => Array(dim[1]).fill(0));
+	// var lead = null
+	var i=0,j,k
+
+	var dim = getdim(matrixA)
+	for(i=0;i<dim[0];i++){
+
+		//find max in the current column
+		var maxEl = matrixA[i][i][0] != 0? abs(matrixA[i][i][0]/matrixA[i][i][0]) : 0
+		var maxRow = i
+		for (k=i+1; k < dim[0]; k++) { 
+			if (abs(matrixA[k][i][0]/matrixA[k][i][1]) > maxEl) {
+                maxEl = matrixA[i][i][0] != 0? abs(matrixA[k][i][0]/matrixA[k][i][1]) : 0
+                maxRow = k;
+            }
+        }
+		
+        matrixA = i != maxRow? rowInterchange(matrixA,i,maxRow) : matrixA
+
+        //values under the leading entry must be 0
+        for(k=i+1;k<dim[0];k++){
+        	var c
+        	if(matrixA[k][i][0] != 0){
+	        	var num = -1*matrixA[k][i][0]*matrixA[i][i][1]
+	        	var den = matrixA[k][i][1]*matrixA[i][i][0]
+	        	c = [num,den]
+	        	c = toLowestTerm(num,den)
+	        } else{
+	        	c = [0,1]
+	        }
+        	// console.log(c)
+	       
+        	var lcm
+	    	for(j=0;j<dim[0]+1;j++){
+	    		if(i==j){
+	    			matrixA[k][j] = [0,1]
+	    		} else{
+	    			var temp = [matrixA[i][j][0]*c[0],matrixA[i][j][1]*c[1]]
+	    			temp = temp[0]!=0? toLowestTerm(temp[0],temp[1]) : [0,1]
+	    			lcm = lcmXY(temp[1],matrixA[k][j][1])
+	    			var num = ((lcm/matrixA[k][j][1])*matrixA[k][j][0]) + ((lcm/temp[1])*temp[0])
+	    			matrixA[k][j] = [num,lcm]
+	    			matrixA[k][j] = matrixA[k][j][0] != 0? toLowestTerm(matrixA[k][j][0],matrixA[k][j][1]) : [0,1]
+	    		}
+	    	}
+        }
+	}
+
+	return matrixA
+}
+
+function vectorRep(vector){
+	var vectorTemp = []
+
+	vector.forEach(function(v){
+		v = v.split("/")
+		v.length == 1? v.push('1') : true
+		v = toLowestTerm(v[0],v[1])
+		vectorTemp.push(v)
+	})
+
+
+	return vectorTemp
+}
+
+
+// function gaussJordanElimination(matrixA){
+// 	var solSet = Array()
+// 	matrixA = gaussianElimination(matrixA)
+	
+// 	matrixA = transposeMatrix(matrixA)
+
+// 	// matrixA = gaussianElimination(matrixA)
+// 	console.table(printMatrixRep(matrixA))
+
+// 	return solSet
 // }
 
-// function scalarMultRow(scalar,row,matrixA){
-// 	for(i=0;i<matrixA[row].length;i++){
-// 		matrixA[row][i]!=0 ? matrixA[row][i] *= scalar : matrixA[row][i]
-// 	}
-// 	return matrixA
-// }
-
-// function addRow(col,row,matrix){
-// 	for(i=0;i<matrix[row].length;i++){
-// 		matrix[row][i] += matrix[col][i]
-// 	}
-// 	return matrix
-// }
-
-// function searchNonZeroInd(col,matrix){
-// 	var dim = getdim(matrix)
-// 	for(m=dim[0]-1;m>=0;m--){
-// 		if(matrix[m][col] != 0){
-// 			// console.log(i)
-// 			return m
-// 		}
-// 	}
-// }
-
-// function gaussianElimination(matrix){
-// 	var dim = getdim(matrix)
-// 	var temp
-// 	var origMatrix
-// 	var eq
-// 	var idxR
-// 	for(i=0;i<dim[1];i++){
-// 		for(j=0;j<dim[0];j++){
-// 			if(i==j){
-// 				temp = matrix[j][i]
-// 				eq = i
-// 				if(matrix[j][i] == 0){
-// 					//search for row val>0 and interchange
-// 					rowEntry = matrix[i]
-// 					idxR = searchNonXeroInd(i,matrix)
-// 					rowChange = matrix[idxR]
-// 					matrix[i] = rowChange
-// 					matrix[idxR] = rowEntry
-// 				}
-
-// 				if(matrix[j][i] != 1){
-// 					scalarConstant = 1/matrix[j][i]
-// 					console.log(scalarConstant)
-// 					// matrix = scalarMultRow(scalarConstant,j,matrix)
-// 				}
-// 			}
-// 			console.table(matrix)
-
-// 			// if(matrix[j][i] != 0){
-// 			// 	console.log(matrix[j][i])
-
-// 			// }
-// 			// return matrix
-// 		}
-// 		// return
-
-// 	}
-// 	// return matrix
-// }
+function getSolutionVector(matrixA){
+	//
+}
