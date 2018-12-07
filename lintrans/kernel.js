@@ -11,6 +11,9 @@ var matrix = [
 ];
 gaussJordanForm(matrix);
 
+/*Checks if the variable is equals to zero (e.g. [0, 1, 0, 0, 0])
+This returns the pivot of a particular row/equation
+*/
 function isVarEqualsZero(row){
 	var pivot = -1;
 	var zeroesAfter = 0;
@@ -34,8 +37,10 @@ function isVarEqualsZero(row){
 
 	return pivot;
 }
+
 function kernel(mat){
 	var polyVars = ['a', 'b', 'c', 'd', 'e', 'f'];
+	var positions = ['t6', 't5', 't4', 't3', 't2', 't', '']
 	var equations = [];
 
 	var rows = mat.length;
