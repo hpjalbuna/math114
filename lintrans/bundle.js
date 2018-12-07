@@ -15,6 +15,7 @@ gaussJordanForm(matrix);
 /*Checks if the variable is equals to zero (e.g. [0, 1, 0, 0, 0])
 This returns the pivot of a particular row/equation
 */
+var cont = document.getElementById('cont');
 function isVarEqualsZero(row){
 	var pivot = -1;
 	var zeroesAfter = 0;
@@ -37,6 +38,98 @@ function isVarEqualsZero(row){
 	}
 
 	return pivot;
+}
+function findPivotCols(matrix){
+	var validPivots = [];
+
+	for (var i = 0; i < matrix.length; i++) {
+		for (var j = 0; j < matrix[i].length; j++) {
+			if(matrix[i][j] === 1){
+				validPivots.push(j);
+				break;
+			}
+		}
+	}
+
+	return validPivots;
+}
+
+function findNonPivotCols(matrix){
+	var pivotsCont = findPivotCols(matrix);
+	var nonPivots = [];
+	for (var i = 0; i < matrix[0].length; i++) {
+		if(!pivotsCont.includes(i))
+			nonPivots.push(i);
+	}
+	return nonPivots;
+}
+
+function findZeroRows(matrix){
+	var zeroIndex = [];
+	for (var i = 0; i < matrix.length; i++) {
+		zeroes = 0;
+		for (var j = 0; j < matrix[i].length; j++) {
+			if(matrix[i][j] === 0)
+				zeroes += 1;
+		}
+
+		if(zeroes === matrix[i].length)
+			zeroIndex.push(i);
+	}
+
+	return zeroIndex;
+}
+
+function findFreePart(matrix, zeroes, nonPivots){
+	var free = [];
+	for(var i = 0; i < (matrix.length-nonPivots.length); i++) {
+		var subpart = [];
+		for(var j = 0; j < matrix.length; j++){
+			if(!zeroes.includes(j))
+				subpart.push(matrix[j][nonPivots[i]]);
+		}
+		free.push(subpart);
+	}
+
+	return free;
+}
+
+function negateFreePart(free){
+	for(var i = 0; i < free.length; i++){
+		for(var j = 0; j < free[i].length; j++){
+			free[i][j] = -1*free[i][j];
+		}
+	}
+	return free;
+}
+
+function finalizeBases(matrix, nonPivots){
+	for(var i = 0; i < matrix.length; i++){
+		for(var j = 0; j < nonPivots.length; j++){
+			var num = 0;
+			if(i === j)
+				num = 1;
+			matrix[i].splice(nonPivots[j], 0, num);
+		}
+	}
+
+	return matrix;
+}
+
+function findBases(matrix){
+	var nonPivotCols = findNonPivotCols(matrix);
+	var zeroRows = findZeroRows(matrix);
+
+	var freePart = findFreePart(matrix, zeroRows, nonPivotCols);
+	var negatedFreePart = negateFreePart(freePart);
+	var finalBases = finalizeBases(negatedFreePart, nonPivotCols);
+	
+	for (var i = 0; i < finalBases.length; i++) {
+		for(var j = 0; j < finalBases[i].length; j++){
+			cont.innerHTML += finalBases[i][j].toString() + "  "; 
+		}
+		cont.innerHTML += "<br>";
+	}
 }
 
 function kernel(mat){
@@ -105,12 +198,12 @@ function kernel(mat){
 		equations.push(string);
 	}
 
-	var cont = document.getElementById('cont');
 	for (var i = 0; i < equations.length; i++) {
 		cont.innerHTML += equations[i] + "<br>";
 	}
 }
 kernel(matrix);
+findBases(matrix);
 document.write(matrix);
 },{"rref":2}],2:[function(require,module,exports){
 module.exports = function (A) {
