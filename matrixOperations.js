@@ -187,18 +187,19 @@ function rowInterchange(mat,rowSrc,rowDst){
 
 }
 
-function createAugmentedMatrix(matrixA,b){
-	var b = vectorRep(b)
-	var i = 0
-	matrixA = matrixRep(matrixA)
-	if(b.length > 0){
-		matrixA.forEach(function(row){
-			row.push(b[i++])
-		})
-	}
 
-	return matrixA
-}
+// function createAugmentedMatrix(matrixA,b){
+// 	var b = vectorRep(b)
+// 	var i = 0
+// 	matrixA = matrixRep(matrixA)
+// 	if(b.length > 0){
+// 		matrixA.forEach(function(row){
+// 			row.push(b[i++])
+// 		})
+// 	}
+
+// 	return matrixA
+// }
 
 
 function gaussianElimination(matrixA){
@@ -206,12 +207,18 @@ function gaussianElimination(matrixA){
 	// var tempMatrix = Array(dim[0]).fill(0).map(() => Array(dim[1]).fill(0));
 	// var lead = null
 	var i=0,j,k
+	matrixA = matrixRep(matrixA)
 
 	var dim = getdim(matrixA)
+	console.log(dim)
 	for(i=0;i<dim[0];i++){
 
-		//find max in the current column
-		var maxEl = matrixA[i][i][0] != 0? abs(matrixA[i][i][0]/matrixA[i][i][0]) : 0
+		if(typeof matrixA[i][i] == 'undefined'){
+			return matrixA
+		}
+
+		var maxEl = matrixA[i][i][0] != 0? abs(matrixA[i][i][0]/matrixA[i][i][1]) : 0
+
 		var maxRow = i
 		for (k=i+1; k < dim[0]; k++) { 
 			if (abs(matrixA[k][i][0]/matrixA[k][i][1]) > maxEl) {
@@ -233,10 +240,10 @@ function gaussianElimination(matrixA){
 	        } else{
 	        	c = [0,1]
 	        }
-        	// console.log(c)
 	       
         	var lcm
-	    	for(j=0;j<dim[0]+1;j++){
+	    	for(j=0;j<dim[1];j++){
+
 	    		if(i==j){
 	    			matrixA[k][j] = [0,1]
 	    		} else{
@@ -269,18 +276,24 @@ function vectorRep(vector){
 }
 
 
-// function gaussJordanElimination(matrixA){
-// 	var solSet = Array()
-// 	matrixA = gaussianElimination(matrixA)
+function gaussJordanElimination(matrixA){
+	var solSet = Array()
+	matrixA = gaussianElimination(matrixA)
 	
-// 	matrixA = transposeMatrix(matrixA)
+	matrixA = transposeMatrix(matrixA)
 
-// 	// matrixA = gaussianElimination(matrixA)
-// 	console.table(printMatrixRep(matrixA))
+	matrixA = gaussianElimination(matrixA)
+	console.table(printMatrixRep(matrixA))
 
-// 	return solSet
-// }
+	return solSet
+}
 
 function getSolutionVector(matrixA){
 	//
+	var dim = getdim(matrixA)
+
+	for(var i=dim[0]-1;i>0;i++){
+
+	}
 }
+
