@@ -1,45 +1,104 @@
+
 window.onload = function() {
 	console.log("hello");
-	checkLinearDependence([[1,2,3],[4,5,6], [7,8,9]], "p");
+	checkLinearDependence([[1,2,3],[4,5,6],[7,8,9]], "r");
+	
 }
 
 //vectors in [[a,b,c], [d,e,f]] form. array of array. type is "r" or "p". r for vectors, p for polynomials.
 function checkLinearDependence(vectors, type){
 	console.log("asddsa");
+	var degree = vectors[0].length
 	lindepsolution = document.getElementById("lindepsolution");
 	if (type == "r"){
+		step1 = "Given the set <br>"
+		given = getSMatrix(vectors);
+		step1 += given;
+		setS = getSetS(vectors, type);
+		baseEquateToZero = equationToZero(vectors, type);
 		
-		step1 = "The set S = {v1, v2, v3} of vectors in R3 is linearly independent if the only solution of c1v1 + c2v2 + c3v3 = 0 is c1, c2, c3 = 0."
+		step1 += "<br>The set " + setS + " of vectors in "+ type.toUpperCase() + "<sup> "+ degree+"</sup>"+ "is linearly independent if the only solution of " + baseEquateToZero + "."
+		step1 +=  "Otherwise (i.e., if a solution with at least some nonzero values exists), S is linearly dependent. <br>"
+		
+		step1 += "<br> perform row echelon on matrix";
+		rowecheleonMatrix = [[0,0,0], [0,1,0], [0,0,1]];
+		trivial = false;
+		for (i = 0; i < rowecheleonMatrix.length; i++) {
+			checker = true
+			for (j = 0; j < rowecheleonMatrix[0].length -1; j++){
+				if (rowecheleonMatrix[i][j] != rowecheleonMatrix[i][j+1] ){
+					checker = false;
+					console.log("it true")
+				}
+			}
+			if (checker == true) { trivial = true}
+		}
+		if (trivial == true){
+			step1 += "<br> System has a trivial solution. Therefore, it is linearly independent."
+		}
+		
+		step1solution = document.getElementById("step1");
+		step1solution.innerHTML = step1;
 	}
 	else{
-		setS = getSetS(vectors);
-		baseEquateToZero = equationToZero(vectors);
+		setS = getSetS(vectors, type);
+		baseEquateToZero = equationToZero(vectors, type);
 		
 		step1 = "The set " + setS + " of vectors in P2 is linearly independent if the only solution of " + baseEquateToZero + "."
 		step1 +=  "Otherwise (i.e., if a solution with at least some nonzero values exists), S is linearly dependent. <br>"
 		eq2 = equateToZero(vectors);
 		step1 += eq2 + "<br>";
 		sameVariable(vectors);
-		[groupedEquation, subgroups] = grouping(vectors)
+		[groupedEquation, subgroups, arrayMatrix] = grouping(vectors)
 		step1 += groupedEquation;
 		step1 += "<br> arranging the left hand side <br>"
 		subgroupsdiv = ""
+
 		for ( i = 0 ; i <= subgroups.length -1; i++){
 			subgroupsdiv += "(" + subgroups[i] + ") = 0 <br>"
 		}
 		step1 += subgroupsdiv;
+
+		//console.log(arrayMatrix);
+		//aug = ['0','0','0']
+		//mat = createAugmentedMatrix(arrayMatrix, aug);
+		//rowMatrix = gaussianElimination(mat);
+
+		//console.log(rowMatrix);
+		matrix = matrixTable(vectors);
+		step1 += matrix;
+		step1 += "<br> perform row echelon on matrix";
+		rowecheleonMatrix = [[0,0,0], [0,1,0], [0,0,1]];
+		trivial = false;
+		for (i = 0; i < rowecheleonMatrix.length; i++) {
+			checker = true
+			for (j = 0; j < rowecheleonMatrix[0].length -1; j++){
+				if (rowecheleonMatrix[i][j] != rowecheleonMatrix[i][j+1] ){
+					checker = false;
+					console.log("it true")
+				}
+			}
+			if (checker == true) { trivial = true}
+		}
+		if (trivial == true){
+			step1 += "<br> System has a trivial solution. Therefore, it is linearly independent."
+		}
 		step1solution = document.getElementById("step1");
 		step1solution.innerHTML = step1;
-		
-
 	}
 }
 
-function getSetS(vectors){
+function getSetS(vectors, type){
+	console.log(type)
 	len = vectors[0].length;
 	setS = "S = {";
 	for (i = 1; i <= len; i++){
-		setS += "p<sub>" + i + "</sub>(t)"
+		if (type == "r"){
+			setS += "v<sub>" + i + "</sub>"
+
+		}else{
+			setS += "p<sub>" + i + "</sub>(t)"
+		}
 		if (i != len) {
 			setS += ", "
 		}
@@ -48,11 +107,17 @@ function getSetS(vectors){
 	return setS;
 }
 
-function equationToZero(vectors){
+function equationToZero(vectors, type){
+	console.log(type)
 	len = vectors[0].length;
 	baseEquateToZero = "";
 	for (i = 1; i <= len; i++){
-		baseEquateToZero += "c<sub>" + i + "</sub>p<sub>" + i + "</sub>" + "(t)"
+		if (type == "r"){
+			baseEquateToZero += "c<sub>" + i + "</sub>v<sub>" + i + "</sub>"
+
+		}else{
+			baseEquateToZero += "c<sub>" + i + "</sub>p<sub>" + i + "</sub>" + "(t)"
+		}
 		if (i != len) {
 			baseEquateToZero += " + "
 		}
@@ -105,22 +170,23 @@ function equateToZero(vectors){
 }
 
 function sameVariable(vectors){
+	console.log("SAME VARIABLE")
 	sameVar = [];
-	len = vectors.length
-	len2 = vectors[0].length;
+	numberOfElements = vectors.length
+	depth = vectors[0].length;
 
-	for (v = 0; v < len2; v++){
+	for (v = 0; v < depth; v++){
 		sameVar.push([])
 	}
-	console.log(sameVar, len)
-	for (index = 0; index <len  ; index++){
-		for (i = 0; i<= len2 -1 ; i ++){
+	console.log(sameVar, numberOfElements)
 
-			console.log(vectors, len, len2)
-			console.log(i, index)
-			console.log("pushing" + vectors[i][index])
+	for (element = 0; element < numberOfElements  ; element++){
+		for (i = 0; i < depth ; i ++){
+			console.log(vectors, numberOfElements, depth)
+			console.log(i, element)
+			console.log("pushing" + vectors[element][i])
 
-			sameVar[index].push(vectors[i][index]);
+			sameVar[i].push(vectors[element][i]);
 		}
 	}
 	console.log(sameVar);
@@ -140,14 +206,14 @@ function grouping(vectors){
 		groupedEquation += "("
 		sub = 1
 		subs = ""
+		
 		for (n = 0; n <= len2 -1; n++){
+			
 			subs += vectors[i][n] + "c<sub>" + sub + "</sub>"
 			if (n != len2 -1){
 				subs += " + "
 			}
-			
-			
-			sub++;
+		sub++;
 
 		}
 		subgroups.push(subs);
@@ -162,11 +228,58 @@ function grouping(vectors){
 		if (i != len-1){
 			groupedEquation += " + ";
 		}else{
-			groupedEquation += "= 0"
+			groupedEquation += "= 0";
 		}
 	}
-	console.log(groupedEquation)
-	console.log(subgroups)
+	arrayMatrix = vectors;
+	return [groupedEquation, subgroups,arrayMatrix ];
+}
 
-	return [groupedEquation, subgroups];
+
+
+function matrixTable(vectors){
+	vectors = sameVariable(vectors);
+	var tableMatrix = "<table id='tableMatrix'> ";
+	var rows = vectors.length;
+	var depth = vectors[0].length;
+	for (row = 0; row < rows; row++) {
+		tableMatrix += "<tr>"
+		for (col = 0; col <depth; col++){
+			tableMatrix += "<td>" + vectors[row][col] + "</td>"
+		}
+		tableMatrix += "</tr>"
+	}
+	tableMatrix += "</table>"
+	return tableMatrix;
+
+}
+
+
+//
+
+
+function getSMatrix(vectors){
+	//div = "<table class='sMatrix'> <tr> <td> </td><td> </td><td> </td></tr> <tr><td>S</td><td> = </td><td> { </td></tr></table>";
+	div = "<table class='givenMatrix'>";
+	numberOfVectors = vectors[0].length;
+	//for (i=0; i < numberOfVectors ; i++){
+		div += "<tr><td>S = {</td>"
+
+		vectors.forEach(function(row){
+			div += "<td><table class='vectorMatrix'>"
+			row.forEach(function(vec){
+				div += "<tr class='vec'><td>" + vec + "</td></tr> ";
+				});
+			div += "</table> </td><td>" 
+			if (row != vectors[vectors.length-1]){div+= ","}
+			"</td>"
+			})
+	//}
+	div += " <td> } </td></tr></table>";
+	//div += "<table class='sMatrix'> <tr> </tr> <tr><td> } </td></tr></table>";
+
+	$("#givenMatrix").find('td').css("border-left", "solid 1px black");
+
+	return div;
+
 }
