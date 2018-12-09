@@ -1,7 +1,7 @@
 
 window.onload = function() {
 	console.log("hello");
-	checkLinearDependence([[1,2,3],[4,5,6],[7,8,9]], "r");
+	checkLinearDependence([['1','2','3'],['4','5','6']], "r");
 	
 }
 
@@ -16,13 +16,37 @@ function checkLinearDependence(vectors, type){
 		step1 += given;
 		setS = getSetS(vectors, type);
 		baseEquateToZero = equationToZero(vectors, type);
-		
+
+		//rowMatrix = gaussianElimination([[1,2,3,0], [4,5,6,0], [1,1,1,0]]);
+		//console.log(rowMatrix);
+		var mat = vectors;//[['1','-2','1'],['0','2','-8'],['-4','5','9']]
+    	var x = ['0','0','0']
+
+    	//augmentedMat = createAugmentedMatrix(mat,x)
+    		// var y = vectorRep(x)
+    	//console.log(printMatrixRep(gaussianElimination(vectors)))
+    	//vtran = sameVariable(vectors);
+    	console.log(vectors)
+    	console.log(sameVariable(vectors))
+    	samevars = sameVariable(vectors);
+    	console.table(printMatrixRep(matrixRep(samevars)));
+    	rowEchelon = printMatrixRep(gaussianElimination(samevars));
+    	console.table(printMatrixRep(gaussianElimination(samevars)));
+//    	gaussianForm = gaussianElimination(matrixRep(samevars))
+  //  	rowechelonform = printMatrixRep(gaussianForm);
+    	rowEchelonTable = matrixTable(sameVariable(rowEchelon));
+    	//console.log(rowechelontable)
+    	//step1 += rowechelontable;
 		step1 += "<br>The set " + setS + " of vectors in "+ type.toUpperCase() + "<sup> "+ degree+"</sup>"+ "is linearly independent if the only solution of " + baseEquateToZero + "."
 		step1 +=  "Otherwise (i.e., if a solution with at least some nonzero values exists), S is linearly dependent. <br>"
 		
 		step1 += "<br> perform row echelon on matrix";
-		rowecheleonMatrix = [[0,0,0], [0,1,0], [0,0,1]];
-		trivial = false;
+		// += rowchelonform;
+		console.log();
+	//	rowecheleonMatrix = sameVariable(rowechelonform);
+		step1 += rowEchelonTable;	
+		var trivial = isTrivial(sameVariable(rowEchelon));
+		/*trivial = false;
 		for (i = 0; i < rowecheleonMatrix.length; i++) {
 			checker = true
 			for (j = 0; j < rowecheleonMatrix[0].length -1; j++){
@@ -33,8 +57,12 @@ function checkLinearDependence(vectors, type){
 			}
 			if (checker == true) { trivial = true}
 		}
+	*/
 		if (trivial == true){
-			step1 += "<br> System has a trivial solution. Therefore, it is linearly independent."
+			step1 += "<br> System has only the trivial solution. Therefore, it is linearly independent."
+		}else{
+			step1 += "<br> System has a nontrivial solution. Therefore, it is linearly dependent."
+
 		}
 		
 		step1solution = document.getElementById("step1");
@@ -62,10 +90,12 @@ function checkLinearDependence(vectors, type){
 		//console.log(arrayMatrix);
 		//aug = ['0','0','0']
 		//mat = createAugmentedMatrix(arrayMatrix, aug);
-		//rowMatrix = gaussianElimination(mat);
+		
 
 		//console.log(rowMatrix);
 		matrix = matrixTable(vectors);
+		//rowMatrix = gaussianElimination(vectors);
+		//console.log(rowMatrix);
 		step1 += matrix;
 		step1 += "<br> perform row echelon on matrix";
 		rowecheleonMatrix = [[0,0,0], [0,1,0], [0,0,1]];
@@ -178,18 +208,14 @@ function sameVariable(vectors){
 	for (v = 0; v < depth; v++){
 		sameVar.push([])
 	}
-	console.log(sameVar, numberOfElements)
 
 	for (element = 0; element < numberOfElements  ; element++){
 		for (i = 0; i < depth ; i ++){
-			console.log(vectors, numberOfElements, depth)
-			console.log(i, element)
-			console.log("pushing" + vectors[element][i])
+			
 
 			sameVar[i].push(vectors[element][i]);
 		}
 	}
-	console.log(sameVar);
 	//index serve as their t value
 	return sameVar;
 }
@@ -282,4 +308,14 @@ function getSMatrix(vectors){
 
 	return div;
 
+}
+
+
+function isTrivial(vectorsInREF){
+	for (var i = 0; i < vectorsInREF.length ; i++){
+		if (vectorsInREF[i][i] == 0){
+			return false;
+		}
+	}
+	return true;
 }
