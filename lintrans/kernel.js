@@ -1,10 +1,42 @@
-var rref = require('rref');
-function gaussJordanForm(matrix){
-	return rref(matrix);
-}
+function gaussJordanForm(A){
+	var rows = A.length;
+    var columns = A[0].length;
+    
+    var lead = 0;
+    for (var k = 0; k < rows; k++) {
+        if (columns <= lead) return;
+        
+        var i = k;
+        while (A[i][lead] === 0) {
+            i++;
+            if (rows === i) {
+                i = k;
+                lead++;
+                if (columns === lead) return;
+            }
+        }
+        var irow = A[i], krow = A[k];
+        A[i] = krow, A[k] = irow;
+         
+        var val = A[k][lead];
+        for (var j = 0; j < columns; j++) {
+            A[k][j] /= val;
+        }
+         
+        for (var i = 0; i < rows; i++) {
+            if (i === k) continue;
+            val = A[i][lead];
+            for (var j = 0; j < columns; j++) {
+                A[i][j] -= val * A[k][j];
+            }
+        }
+        lead++;
+    }
+    return A;
+};
 
 var matrix = [
-	[1, 2, 1, 2, 1], 
+	[1, 2, 1, 2, 1],
 	[1, 2, 2, 1, 2],
 	[2, 4, 3, 3, 3],
 	[0, 0, 1, -1, -1]
@@ -38,6 +70,8 @@ function isVarEqualsZero(row){
 
 	return pivot;
 }
+
+/*Find columns with leading 1s*/
 function findPivotCols(matrix){
 	var validPivots = [];
 
@@ -53,6 +87,7 @@ function findPivotCols(matrix){
 	return validPivots;
 }
 
+/*Find columns that are not pivots, this is used for finalizing bases*/
 function findNonPivotCols(matrix){
 	var pivotsCont = findPivotCols(matrix);
 	var nonPivots = [];
@@ -63,6 +98,7 @@ function findNonPivotCols(matrix){
 	return nonPivots;
 }
 
+/*Find columns that are equal to*/
 function findZeroRows(matrix){
 	var zeroIndex = [];
 	for (var i = 0; i < matrix.length; i++) {
@@ -93,6 +129,33 @@ function findFreePart(matrix, zeroes, nonPivots){
 	return free;
 }
 
+function findNonPivotColsForOne(matrix, zeroes, pivot){
+	var nonPivotCols = [];
+	for(var i = 0; i < matrix.length; i++){
+		if(!zeroes.includes(i)){
+			for(var j = pivot+1; j < matrix[i].length; j++){
+				nonPivotCols.push(j);
+			}
+		}
+	}
+	return nonPivotCols;
+}
+
+function findFreePartForOne(matrix, zeroes, pivot){
+	var free = [];
+	for(var i = 0; i < matrix.length; i++){
+		if(!zeroes.includes(i)){
+			for(var j = pivot+1; j < matrix[i].length; j++){
+				var subpart = [];
+				subpart.push(matrix[i][j]);
+				free.push(subpart);
+			}
+		}
+	}
+
+	return free;
+}
+
 function negateFreePart(free){
 	for(var i = 0; i < free.length; i++){
 		for(var j = 0; j < free[i].length; j++){
@@ -116,13 +179,32 @@ function finalizeBases(matrix, nonPivots){
 }
 
 function findBases(matrix){
-	var nonPivotCols = findNonPivotCols(matrix);
+	var pivotCols = findPivotCols(matrix);
+	var nonPivotCols = [];
 	var zeroRows = findZeroRows(matrix);
+	var freePart = [];
+	var finalBases = [];
 
-	var freePart = findFreePart(matrix, zeroRows, nonPivotCols);
-	var negatedFreePart = negateFreePart(freePart);
-	var finalBases = finalizeBases(negatedFreePart, nonPivotCols);
-	
+	if(findNonPivotCols(matrix).length === 0){ //For zero basis
+		var zeroMatrix = [];
+		for(var i = 0; i < matrix[0].length; i++)
+			zeroMatrix.push(0);
+		finalBases.push(zeroMatrix);
+	}
+	else{
+		if((pivotCols.length === 1) && ((matrix.length - zeroRows.length) === 1)){
+			nonPivotCols = findNonPivotColsForOne(matrix, zeroRows, pivotCols[0]);
+			freePart = findFreePartForOne(matrix, zeroRows, pivotCols[0]);
+		}
+		else{
+			nonPivotCols = findNonPivotCols(matrix);
+			freePart = findFreePart(matrix, zeroRows, nonPivotCols);
+			document.write(nonPivotCols);
+		}
+		var negatedFreePart = negateFreePart(freePart);
+		finalBases = finalizeBases(negatedFreePart, nonPivotCols);
+	}
+
 	for (var i = 0; i < finalBases.length; i++) {
 		for(var j = 0; j < finalBases[i].length; j++){
 			cont.innerHTML += finalBases[i][j].toString() + "  "; 
@@ -131,7 +213,7 @@ function findBases(matrix){
 	}
 }
 
-function kernel(mat){
+function kernelOfL(mat){
 	var polyVars = ['a', 'b', 'c', 'd', 'e', 'f'];
 	var positions = ['t6', 't5', 't4', 't3', 't2', 't', '']
 	var equations = [];
@@ -201,6 +283,7 @@ function kernel(mat){
 		cont.innerHTML += equations[i] + "<br>";
 	}
 }
-kernel(matrix);
+kernelOfL(matrix);
 findBases(matrix);
+document.write("<br>");
 document.write(matrix);
