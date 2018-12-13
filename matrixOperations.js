@@ -278,14 +278,46 @@ function vectorRep(vector){
 
 function gaussJordanElimination(matrixA){
 	var solSet = Array()
-	matrixA = gaussianElimination(matrixA)
-	
-	matrixA = transposeMatrix(matrixA)
-
+	var dim = getdim(matrixA)
 	matrixA = gaussianElimination(matrixA)
 	console.table(printMatrixRep(matrixA))
+	for(var col=0;col<dim[1];col++){
+		if(col==dim[0]-1){
+			break
+		}
+		var pivot = matrixA[col][col]
+		for(var row=0;row<dim[0];row++){
+			if(row==col){
+				break
+			}
+			if(matrixA[row][col][0]==0){
+				continue
+			}
 
-	return solSet
+			var num = -1*matrixA[row][col][0]*pivot[1]
+			var den = pivot[0]*matrixA[row][col][1]
+			c = toLowestTerm(num,den)
+			matrixA[row][col] = [0,1]
+
+			for(k=col+1;k<dim[1];k++){
+				var temp = [matrixA[col][k][0]*c[0],matrixA[col][k][1]*c[1]]
+				temp = temp[0]!=0? toLowestTerm(temp[0],temp[1]) : [0,1]
+				lcm = lcmXY(temp[1],matrixA[row][k][1])
+				var num = ((lcm/matrixA[row][k][1])*matrixA[row][k][0]) + ((lcm/temp[1])*temp[0])
+				matrixA[row][k] = [num,lcm]
+				matrixA[row][k] = matrixA[row][k][0] != 0? toLowestTerm(matrixA[row][k][0],matrixA[row][k][1]) : [0,1]
+			}
+		}
+	}
+
+
+
+
+
+
+	console.table(printMatrixRep(matrixA))
+
+	return matrixA
 }
 
 function getSolutionVector(matrixA){
