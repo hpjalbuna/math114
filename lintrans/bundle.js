@@ -123,7 +123,7 @@ function findBases(matrix){
 	var freePart = findFreePart(matrix, zeroRows, nonPivotCols);
 	var negatedFreePart = negateFreePart(freePart);
 	var finalBases = finalizeBases(negatedFreePart, nonPivotCols);
-	
+
 	for (var i = 0; i < finalBases.length; i++) {
 		for(var j = 0; j < finalBases[i].length; j++){
 			cont.innerHTML += finalBases[i][j].toString() + "  "; 
@@ -132,7 +132,7 @@ function findBases(matrix){
 	}
 }
 
-function kernel(mat){
+function kernelOfL(mat){
 	var polyVars = ['a', 'b', 'c', 'd', 'e', 'f'];
 	var positions = ['t6', 't5', 't4', 't3', 't2', 't', '']
 	var equations = [];
@@ -202,7 +202,7 @@ function kernel(mat){
 		cont.innerHTML += equations[i] + "<br>";
 	}
 }
-kernel(matrix);
+kernelOfL(matrix);
 findBases(matrix);
 document.write(matrix);
 },{"rref":2}],2:[function(require,module,exports){
