@@ -205,6 +205,7 @@ function findBases(matrix){
 		finalBases = finalizeBases(negatedFreePart, nonPivotCols);
 	}
 
+	finalBases = transposeMatrix(finalBases);
 	for (var i = 0; i < finalBases.length; i++) {
 		for(var j = 0; j < finalBases[i].length; j++){
 			cont.innerHTML += finalBases[i][j].toString() + "  "; 
