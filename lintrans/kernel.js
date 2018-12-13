@@ -83,7 +83,6 @@ function findPivotCols(matrix){
 			}
 		}
 	}
-
 	return validPivots;
 }
 
@@ -216,7 +215,7 @@ function findBases(matrix){
 
 function kernelOfL(mat){
 	var polyVars = ['a', 'b', 'c', 'd', 'e', 'f'];
-	var positions = ['t6', 't5', 't4', 't3', 't2', 't', '']
+	var positions = ['t6', 't5', 't4', 't3', 't2', 't', ''];
 	var equations = [];
 
 	var rows = mat.length;
