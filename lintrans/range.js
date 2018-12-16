@@ -1,5 +1,5 @@
 var matrix = [
-	[1, 0, 1, 2],
+	[1, 0, 0.6, 2],
 	[3, 1, 6, 4],
 	[1, 9, 4, 8]
 ];
@@ -29,6 +29,15 @@ function findPivotCols(matrix){
 	return validPivots;
 }
 
+function fractionalizeMatrix(matrix){
+	for(var i = 0; i < matrix.length; i++){
+		for(var j = 0; j < matrix[i].length; j++){
+			if(!(Number.isInteger(matrix[i][j])))
+				matrix[i][j] = (new Fraction(matrix[i][j])).toString();
+		}
+	}
+}
+
 function findBasesForRange(matrix, copy){
 	var pivots = findPivotCols(copy);
 	var finalBases = [];
@@ -50,6 +59,8 @@ function findBasesForRange(matrix, copy){
 	
 
 	finalBases = transposeMatrix(finalBases);
+
+	fractionalizeMatrix(finalBases);
 
 	for (var i = 0; i < finalBases.length; i++) {
 		for(var j = 0; j < finalBases[i].length; j++){

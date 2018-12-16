@@ -39,6 +39,12 @@ var matrix = [
 	[3, 1, 4],
 	[2, 2, 5]
 ];
+
+var matrix1 = [
+	[1, 1, 2],
+	[2, 1, 2],
+	[3, 2, 1]
+];
 gaussJordanForm(matrix);
 
 /*Checks if the variable is equals to zero (e.g. [0, 1, 0, 0, 0])
@@ -174,6 +180,7 @@ function finalizeBases(matrix, nonPivots){
 
 	return matrix;
 }
+
 function fractionalizeMatrix(matrix){
 	for(var i = 0; i < matrix.length; i++){
 		for(var j = 0; j < matrix[i].length; j++){
@@ -182,6 +189,7 @@ function fractionalizeMatrix(matrix){
 		}
 	}
 }
+
 function findBases(matrix){
 	var pivotCols = findPivotCols(matrix);
 	var nonPivotCols = [];
@@ -217,6 +225,14 @@ function findBases(matrix){
 		}
 		cont.innerHTML += "<br>";
 	}
+	return finalBases;
+}
+
+function dimensionKernel(basis){
+	var dim = 0;
+	if(!(findZeroRows(basis).length == basis.length))
+		dim = basis[0].length;
+	return dim;
 }
 
 function kernelOfL(mat){
@@ -300,6 +316,7 @@ function kernelOfL(mat){
 	}
 }
 kernelOfL(matrix);
-findBases(matrix);
+var dimOfKernel = dimensionKernel(findBases(matrix));
+document.write('<br> Dimension: '+dimOfKernel+'<br>')
 document.write("<br>");
 document.write(matrix);
