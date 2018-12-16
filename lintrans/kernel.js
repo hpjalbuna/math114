@@ -36,10 +36,8 @@ function gaussJordanForm(A){
 };
 
 var matrix = [
-	[1, 2, 1, 2, 1],
-	[1, 2, 2, 1, 2],
-	[2, 4, 3, 3, 3],
-	[0, 0, 1, -1, -1]
+	[3, 1, 4],
+	[2, 2, 5]
 ];
 gaussJordanForm(matrix);
 
@@ -116,7 +114,7 @@ function findZeroRows(matrix){
 
 function findFreePart(matrix, zeroes, nonPivots){
 	var free = [];
-	for(var i = 0; i < (matrix.length-nonPivots.length); i++) {
+	for(var i = 0; i < nonPivots.length; i++) {
 		var subpart = [];
 		for(var j = 0; j < matrix.length; j++){
 			if(!zeroes.includes(j))
@@ -176,7 +174,14 @@ function finalizeBases(matrix, nonPivots){
 
 	return matrix;
 }
-
+function fractionalizeMatrix(matrix){
+	for(var i = 0; i < matrix.length; i++){
+		for(var j = 0; j < matrix[i].length; j++){
+			if(!(Number.isInteger(matrix[i][j])))
+				matrix[i][j] = (new Fraction(matrix[i][j])).toString();
+		}
+	}
+}
 function findBases(matrix){
 	var pivotCols = findPivotCols(matrix);
 	var nonPivotCols = [];
@@ -198,13 +203,14 @@ function findBases(matrix){
 		else{
 			nonPivotCols = findNonPivotCols(matrix);
 			freePart = findFreePart(matrix, zeroRows, nonPivotCols);
-			document.write(nonPivotCols);
 		}
 		var negatedFreePart = negateFreePart(freePart);
 		finalBases = finalizeBases(negatedFreePart, nonPivotCols);
 	}
 
 	finalBases = transposeMatrix(finalBases);
+	fractionalizeMatrix(finalBases);
+	cont.innerHTML += "Basis for KernelL: <br>";
 	for (var i = 0; i < finalBases.length; i++) {
 		for(var j = 0; j < finalBases[i].length; j++){
 			cont.innerHTML += finalBases[i][j].toString() + "  "; 
@@ -247,7 +253,11 @@ function kernelOfL(mat){
 							string = string + " " + polyVars[j];
 						}
 						else{
-							string = " " + string + (-1*mat[i][j]).toString() + polyVars[j];
+							var num = -1*mat[i][j];
+							if(!(Number.isInteger(num)))
+								num = (new Fraction(-1*mat[i][j])).toString();
+
+							string = " " + string + num + polyVars[j];
 						}
 					}
 					else{
@@ -265,10 +275,16 @@ function kernelOfL(mat){
 							else
 								sign = "+";
 
-							if((-1*mat[i][j])<0)
-								num = mat[i][j].toString();
-							else
-								num = (-1*mat[i][j]).toString();
+							if((-1*mat[i][j])<0){
+								var num = mat[i][j].toString();
+								if(!(Number.isInteger(-1*mat[i][j])))
+									num = (new Fraction(mat[i][j])).toString();
+							}
+							else{
+								var num = (-1*mat[i][j]).toString();
+								if(!(Number.isInteger(-1*mat[i][j])))
+									num = (new Fraction(-1*mat[i][j])).toString();
+							}
 
 							string = string + " " + sign + " " + num + polyVars[j];
 						}	
